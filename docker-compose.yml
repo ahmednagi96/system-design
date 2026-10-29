@@ -1,0 +1,25 @@
+services:
+  # ==========================================
+  # الكونتينر الأول: مشروع الـ API بتاعك
+  # ==========================================
+  api:
+    container_name: systemdesign-api
+    build:
+      context: .
+      dockerfile: src/SystemDesign.API/Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Redis=redis:6379
+    depends_on:
+      - redis
+
+  # ==========================================
+  # الكونتينر الثاني: سيرفر الـ Redis المستقل
+  # ==========================================
+  redis:
+    container_name: systemdesign-redis
+    image: redis:alpine
+    ports:
+      - "6379:6379"
