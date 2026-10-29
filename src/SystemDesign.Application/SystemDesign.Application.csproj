@@ -2,8 +2,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SystemDesign.Domain\SystemDesign.Domain.csproj" />
-    <ProjectReference Include="SystemDesign.Application.csproj" />
-    <ProjectReference Include="..\SystemDesign.Infrastructure\SystemDesign.Infrastructure.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
