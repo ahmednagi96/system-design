@@ -1,6 +1,6 @@
 services:
   # ==========================================
-  # الكونتينر الأول: مشروع الـ API بتاعك
+  # 1. الكونتينر الأول: مشروع الـ API بتاعك
   # ==========================================
   api:
     container_name: systemdesign-api
@@ -11,15 +11,37 @@ services:
       - "5000:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      # ربط الـ Redis باسم السيرفس
       - ConnectionStrings__Redis=redis:6379
+      # ربط الـ SQL Server باسم السيرفس (sqlserver) والبورت الداخلي (1433)
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=${DB_NAME};User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True;
     depends_on:
       - redis
+      - sqlserver
 
   # ==========================================
-  # الكونتينر الثاني: سيرفر الـ Redis المستقل
+  # 2. الكونتينر الثاني: سيرفر الـ Redis المستقل
   # ==========================================
   redis:
     container_name: systemdesign-redis
     image: redis:alpine
     ports:
       - "6379:6379"
+
+  # ==========================================
+  # 3. الكونتينر الثالث: سيرفر SQL Server
+  # ==========================================
+  sqlserver:
+    container_name: systemdesign-sql
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1434:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+
+# تعريف الـ Volume عشان الداتا والجداول متتمسحش لما نعمل docker compose down
+volumes:
+  sqlserver_data:
