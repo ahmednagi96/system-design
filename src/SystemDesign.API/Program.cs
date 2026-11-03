@@ -1,6 +1,8 @@
 using StackExchange.Redis;
 using SystemDesign.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using SystemDesign.API.Background;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -18,7 +20,12 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(
 // register db context
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")!));
-
+    // register memory cache
+    // 2. تسجيل الكاش
+builder.Services.AddMemoryCache();
+// 3. تسجيل الـ Queue والـ Background Worker بتاع الإحصائيات
+builder.Services.AddSingleton<ClickAnalyticsQueue>();
+builder.Services.AddHostedService<ClickAnalyticsWorker>();
 
 
 var app = builder.Build();
