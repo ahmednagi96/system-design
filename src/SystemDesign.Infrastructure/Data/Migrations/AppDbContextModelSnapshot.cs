@@ -22,6 +22,9 @@ namespace SystemDesign.Infrastructure.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.HasSequence("ShortUrlIdSeq")
+                .StartsAt(100000L);
+
             modelBuilder.Entity("SystemDesign.Domain.Entities.Post", b =>
                 {
                     b.Property<int>("Id")
@@ -52,6 +55,83 @@ namespace SystemDesign.Infrastructure.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("SystemDesign.Domain.Entities.ShortUrl", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedByUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("GuestSessionId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("OriginalUrl")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
+
+                    b.Property<string>("ShortCode")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("nvarchar(12)");
+
+                    b.Property<long>("TotalClicks")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("GuestSessionId");
+
+                    b.HasIndex("ShortCode")
+                        .IsUnique();
+
+                    b.ToTable("ShortUrls");
+                });
+
+            modelBuilder.Entity("SystemDesign.Domain.Entities.UrlClick", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("ClickedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeviceType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Referrer")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("ShortUrlId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UserAgent")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClickedAt");
+
+                    b.HasIndex("ShortUrlId");
+
+                    b.ToTable("UrlClicks");
                 });
 
             modelBuilder.Entity("SystemDesign.Domain.Entities.User", b =>
@@ -104,6 +184,22 @@ namespace SystemDesign.Infrastructure.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SystemDesign.Domain.Entities.UrlClick", b =>
+                {
+                    b.HasOne("SystemDesign.Domain.Entities.ShortUrl", "ShortUrl")
+                        .WithMany("Clicks")
+                        .HasForeignKey("ShortUrlId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ShortUrl");
+                });
+
+            modelBuilder.Entity("SystemDesign.Domain.Entities.ShortUrl", b =>
+                {
+                    b.Navigation("Clicks");
                 });
 
             modelBuilder.Entity("SystemDesign.Domain.Entities.User", b =>
