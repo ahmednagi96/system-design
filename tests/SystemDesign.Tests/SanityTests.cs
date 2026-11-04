@@ -6,6 +6,6 @@ public class SanityTests
     public void Pipeline_Runs_Tests()
     {
         // اختبار بسيط عشان نتأكد إن الـ Pipeline بيشغّل الاختبارات
-        Assert.Equal(4, 2 + 2);
+        Assert.Equal(5, 2 + 2);
     }
 }
