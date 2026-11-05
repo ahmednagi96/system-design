@@ -1,0 +1,25 @@
+<Project>
+  <PropertyGroup>
+    <!-- تفعيل الإدارة المركزية للباكدجات -->
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <!-- متغير واحد لكل مكتبات EF Core: الترقية = تعديل سطر واحد -->
+    <EfCoreVersion>8.0.33</EfCoreVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- EF Core: الرقم الكبير لازم يطابق .NET -->
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EfCoreVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="$(EfCoreVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="$(EfCoreVersion)" />
+
+    <!-- مكتبات مستقلة عن إصدار .NET -->
+    <PackageVersion Include="StackExchange.Redis" Version="3.4.20" />
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+
+    <!-- مكتبات الاختبارات: انسخ نفس الأرقام الموجودة في SystemDesign.Tests.csproj -->
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
+    <PackageVersion Include="xunit" Version="2.4.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.4.5" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.0" />
+  </ItemGroup>
+</Project>
