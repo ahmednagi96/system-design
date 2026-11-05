@@ -89,4 +89,39 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha                       # استخدم كاش التشغيل اللي فات
           cache-to: type=gha,mode=max                # واحفظ كاش للمرة الجاية  
-        
+  deploy:
+    name: Deploy
+    needs: docker                        # بعد ما الصورة تترفع
+    if: github.event_name == 'push'      # في main بس، مش في الـ PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      # نجهّز مفتاح الدخول
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      # ننسخ ملف compose للسيرفر (عشان أي تعديل عليه يوصل لوحده)
+      - name: Copy compose file
+        run: |
+          scp deploy/docker-compose.prod.yml \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/app/docker-compose.yml"
+
+      # النشر نفسه
+      - name: Deploy on server
+        run: |
+          IMAGE_TAG="sha-${GITHUB_SHA::7}"
+          ssh "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "
+            cd ~/app &&
+            export IMAGE_TAG=$IMAGE_TAG &&
+            docker compose pull &&
+            docker compose up -d &&
+            docker image prune -f
+          "        

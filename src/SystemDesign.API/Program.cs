@@ -1,4 +1,5 @@
 using StackExchange.Redis;
+using static StackExchange.Redis.ConnectionMultiplexer;
 using SystemDesign.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using SystemDesign.API.Background;
@@ -63,5 +64,6 @@ if (app.Environment.IsDevelopment())
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapGet("/health", () => Results.Ok("Healthy"));
 
 app.Run();

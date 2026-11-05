@@ -1,0 +1,40 @@
+services:
+  api:
+    # الصورة الجاهزة من GHCR (اكتب اسمك واسم الريبو بحروف صغيرة)
+    image: ghcr.io/ahmednagi96/system-design:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    ports:
+      - "80:8080"                 # مؤقتًا لحد ما نضيف Caddy في الدرس 9
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}
+      - ConnectionStrings__Redis=redis:6379
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=${DB_NAME};User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True;
+    depends_on:
+      sqlserver:
+        condition: service_healthy   # استنى SQL يبقى جاهز فعلًا
+      redis:
+        condition: service_started
+
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    # 🚫 مفيش ports: مش مفتوح للإنترنت
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    # 🚫 مفيش ports: مش مفتوح للإنترنت
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  sqlserver_data:
