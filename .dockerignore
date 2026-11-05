@@ -1,6 +1,27 @@
-**/.git
-**/.vs
-**/.vscode
-**/bin
-**/obj
-**/.env
+# مخرجات البناء من جهازك
+**/bin/
+**/obj/
+
+# الأسرار
+.env
+**/*.env
+!.env.example
+
+# Git والأدوات
+.git
+.github
+.vs
+.vscode
+.idea
+*.user
+
+# Docker نفسه
+**/Dockerfile*
+**/docker-compose*
+.dockerignore
+
+# الاختبارات مش محتاجينها في الصورة
+tests/
+
+# ملفات مش لازمة
+**/*.md

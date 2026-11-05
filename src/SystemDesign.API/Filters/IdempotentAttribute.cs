@@ -62,7 +62,7 @@ public sealed class IdempotentAttribute : Attribute, IAsyncActionFilter
             var existingValue = await db.StringGetAsync(redisKey);
             if (!existingValue.IsNullOrEmpty)
             {
-                var existingRecord = JsonSerializer.Deserialize<IdempotencyRecord>(existingValue!);
+                var existingRecord = JsonSerializer.Deserialize<IdempotencyRecord>(existingValue.ToString()!);
 
                 // أ) لو العميل بعت نفس الـ Key بس غير المبلغ أو الداتا
                 if (existingRecord!.RequestHash != requestHash)
