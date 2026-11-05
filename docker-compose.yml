@@ -10,8 +10,7 @@ services:
     ports:
       - "5000:8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      # ربط الـ Redis باسم السيرفس
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}      # ربط الـ Redis باسم السيرفس
       - ConnectionStrings__Redis=redis:6379
       # ربط الـ SQL Server باسم السيرفس (sqlserver) والبورت الداخلي (1433)
       - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=${DB_NAME};User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True;
