@@ -1,34 +1,46 @@
-# المرحلة الأولى: الـ Build (بنستخدم صورة الـ SDK الكاملة لبناء الكود)
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /app
+# =====================================================================
+# المرحلة الأولى: البناء (Build)
+# بنستخدم صورة الـ SDK الكاملة عشان نبني الكود
+# =====================================================================
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
 
-# 1. ننسخ ملف الـ Solution وملفات الـ .csproj للأربع مشاريع الأول
-# (الحركة دي بتخلي Docker يكيش المكتبات وميحملهاش من الأول كل مرة تعدل فيها سطر كود)
-COPY ["SystemDesign.sln", "./"]
-COPY ["src/SystemDesign.API/SystemDesign.API.csproj", "src/SystemDesign.API/"]
-COPY ["src/SystemDesign.Application/SystemDesign.Application.csproj", "src/SystemDesign.Application/"]
-COPY ["src/SystemDesign.Domain/SystemDesign.Domain.csproj", "src/SystemDesign.Domain/"]
+# 1. ملفات الإعدادات المركزية (إصدار .NET + إصدارات المكتبات)
+#    لازم تتنسخ قبل الـ restore، وإلا المشاريع مش هتعرف الإصدارات
+COPY ["Directory.Build.props", "Directory.Packages.props", "./"]
+
+# 2. ملفات csproj للمشاريع اللي الـ API محتاجها بس (من غير Tests)
+#    (عشان Docker يحفظ طبقة الـ restore في الكاش، وميعيدش تحميل المكتبات مع كل تعديل كود)
+COPY ["src/SystemDesign.Domain/SystemDesign.Domain.csproj",                 "src/SystemDesign.Domain/"]
+COPY ["src/SystemDesign.Application/SystemDesign.Application.csproj",       "src/SystemDesign.Application/"]
 COPY ["src/SystemDesign.Infrastructure/SystemDesign.Infrastructure.csproj", "src/SystemDesign.Infrastructure/"]
+COPY ["src/SystemDesign.API/SystemDesign.API.csproj",                       "src/SystemDesign.API/"]
 
-# 2. نحمل كل الـ NuGet Packages للمشاريع الأربعة
-RUN dotnet restore "SystemDesign.sln"
+# 3. تحميل المكتبات لمشروع الـ API بس (وهو بيسحب باقي المشاريع معاه)
+RUN dotnet restore "src/SystemDesign.API/SystemDesign.API.csproj"
 
-# 3. ننسخ باقي ملفات الكود كلها
+# 4. نسخ باقي الكود (الملفات الممنوعة متحددة في .dockerignore)
 COPY . .
 
-# 4. نقف جوه فولدر الـ API ونعمل Publish (الـ API هيجمع الـ DLLs بتاعة باقي المشاريع معاه)
-WORKDIR "/app/src/SystemDesign.API"
-RUN dotnet publish "SystemDesign.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
+# 5. النشر (Publish): الـ API بيجمع الـ DLLs بتاعة كل المشاريع معاه
+RUN dotnet publish "src/SystemDesign.API/SystemDesign.API.csproj" \
+    -c Release \
+    -o /app/publish \
+    --no-restore \
+    /p:UseAppHost=false
 
-# ------------------------------------------------------------------------
-
-# المرحلة الثانية: الـ Runtime (صورة خفيفة جداً لتشغيل المشروع فقط بدون SDK)
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+# =====================================================================
+# المرحلة الثانية: التشغيل (Runtime)
+# صورة خفيفة فيها بيئة التشغيل بس، من غير SDK ولا كود المصدر
+# =====================================================================
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 EXPOSE 8080
 
-# ننسخ الملفات النهائية اللي طلعت من مرحلة الـ Publish
+# ننسخ الناتج النهائي بس من مرحلة البناء
 COPY --from=build /app/publish .
 
-# أمر تشغيل مشروع الـ API
+# نشغّل التطبيق بيوزر عادي مش root (أمان)
+USER $APP_UID
+
 ENTRYPOINT ["dotnet", "SystemDesign.API.dll"]
