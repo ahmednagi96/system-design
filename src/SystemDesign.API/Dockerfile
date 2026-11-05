@@ -29,6 +29,18 @@ RUN dotnet publish "src/SystemDesign.API/SystemDesign.API.csproj" \
     --no-restore \
     /p:UseAppHost=false
 
+    # 6. نرجّع أداة dotnet-ef من ملف الأدوات (نفس الإصدار في كل مكان)
+RUN dotnet tool restore
+
+# 7. نبني حزمة الـ Migrations (برنامج صغير بيطبق الـ Migrations)
+RUN dotnet ef migrations bundle \
+    --project src/SystemDesign.Infrastructure \
+    --startup-project src/SystemDesign.API \
+    --configuration Release \
+    --runtime linux-x64 \
+    --output /app/efbundle \
+    --force
+
 # =====================================================================
 # المرحلة الثانية: التشغيل (Runtime)
 # صورة خفيفة فيها بيئة التشغيل بس، من غير SDK ولا كود المصدر
@@ -39,6 +51,9 @@ EXPOSE 8080
 
 # ننسخ الناتج النهائي بس من مرحلة البناء
 COPY --from=build /app/publish .
+
+# ننسخ حزمة الـ Migrations جنب التطبيق
+COPY --from=build /app/efbundle ./efbundle
 
 # نشغّل التطبيق بيوزر عادي مش root (أمان)
 USER $APP_UID

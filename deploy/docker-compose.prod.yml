@@ -1,4 +1,14 @@
 services:
+  migrator:
+    # نفس صورة الـ API بالظبط
+    image: ghcr.io/ahmednagi96/system-design:${IMAGE_TAG:-latest}
+    # بدل ما يشغّل الـ API، يشغّل حزمة الـ Migrations
+    entrypoint: ["./efbundle", "--connection", "Server=sqlserver,1433;Database=${DB_NAME};User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True;"]
+    restart: "no"                       # يشتغل مرة واحدة ويخلص
+    depends_on:
+      sqlserver:
+        condition: service_healthy      # يستنى SQL يبقى جاهز  
+  
   api:
     # الصورة الجاهزة من GHCR (اكتب اسمك واسم الريبو بحروف صغيرة)
     image: ghcr.io/ahmednagi96/system-design:${IMAGE_TAG:-latest}
@@ -10,6 +20,8 @@ services:
       - ConnectionStrings__Redis=redis:6379
       - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=${DB_NAME};User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True;
     depends_on:
+      migrator:
+        condition: service_completed_successfully   # 👈 الجديد
       sqlserver:
         condition: service_healthy   # استنى SQL يبقى جاهز فعلًا
       redis:
