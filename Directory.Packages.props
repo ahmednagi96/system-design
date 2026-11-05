@@ -6,6 +6,7 @@
 
     <!-- متغير واحد لكل مكتبات EF Core: الترقية = تعديل سطر واحد -->
     <EfCoreVersion>10.0.14</EfCoreVersion>
+    <AspNetCoreVersion>10.0.14</AspNetCoreVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +25,11 @@
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.4.5" />
     <PackageVersion Include="coverlet.collector" Version="6.0.0" />
     <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="9.0.21" />
+
+    <!-- اختبارات التكامل -->
+<PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(AspNetCoreVersion)" />
+<PackageVersion Include="Testcontainers.MsSql" Version="4.15.0" />
+<PackageVersion Include="Testcontainers.Redis" Version="4.15.0" />
 
   </ItemGroup>
 </Project>  
