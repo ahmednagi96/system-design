@@ -94,6 +94,9 @@ jobs:
     needs: docker                        # بعد ما الصورة تترفع
     if: github.event_name == 'push'      # في main بس، مش في الـ PR
     runs-on: ubuntu-latest
+    environment:                                      # 👈 جديد
+      name: production
+      url: https://13-140-223-133.sslip.io/health    # لينك بيظهر في GitHub بعد النشر 
     timeout-minutes: 15
 
     steps:
@@ -115,6 +118,9 @@ jobs:
             "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/app/docker-compose.yml"
           scp deploy/Caddyfile \
             "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/app/Caddyfile"
+          scp deploy/backup.sh \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/app/backup.sh"
+
       # النشر نفسه
       - name: Deploy on server
         run: |
