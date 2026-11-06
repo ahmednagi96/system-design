@@ -4,3 +4,23 @@ GET {{system_design_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+### Create a user
+POST {{system_design_HostAddress}}/api/users
+Content-Type: application/json
+
+{
+  "name": "Ahmed Nagi",
+  "email": "ahmed@example.com",
+  "password": "P@ssw0rd123"
+}
+
+### List all users
+GET {{system_design_HostAddress}}/api/users
+Accept: application/json
+
+### Get one user by id
+GET {{system_design_HostAddress}}/api/users/1
+Accept: application/json
+
+###
