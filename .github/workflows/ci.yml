@@ -108,12 +108,13 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
 
-      # ننسخ ملف compose للسيرفر (عشان أي تعديل عليه يوصل لوحده)
-      - name: Copy compose file
+           # ننسخ ملفات النشر للسيرفر (compose + Caddyfile)
+      - name: Copy deploy files
         run: |
           scp deploy/docker-compose.prod.yml \
             "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/app/docker-compose.yml"
-
+          scp deploy/Caddyfile \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/app/Caddyfile"
       # النشر نفسه
       - name: Deploy on server
         run: |

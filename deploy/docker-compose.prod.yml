@@ -13,8 +13,8 @@ services:
     # الصورة الجاهزة من GHCR (اكتب اسمك واسم الريبو بحروف صغيرة)
     image: ghcr.io/ahmednagi96/system-design:${IMAGE_TAG:-latest}
     restart: unless-stopped
-    ports:
-      - "80:8080"                 # مؤقتًا لحد ما نضيف Caddy في الدرس 9
+   # ports:
+   #   - "80:8080"                 # مؤقتًا لحد ما نضيف Caddy في الدرس 9
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}
       - ConnectionStrings__Redis=redis:6379
@@ -47,6 +47,23 @@ services:
       timeout: 5s
       retries: 10
       start_period: 30s
-
+ 
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"         # HTTP (عشان Let's Encrypt يتأكد من الدومين + تحويل لـ HTTPS)
+      - "443:443"       # HTTPS
+      - "443:443/udp"   # HTTP/3 (أسرع)
+    environment:
+      - DOMAIN=${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro   # ملف الإعدادات (قراءة بس)
+      - caddy_data:/data                       # الشهادات (عشان متتعملش من الأول كل مرة)
+      - caddy_config:/config
+    depends_on:
+      - api
 volumes:
   sqlserver_data:
+  caddy_data:
+  caddy_config:
