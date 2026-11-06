@@ -37,7 +37,6 @@ RUN dotnet ef migrations bundle \
     --project src/SystemDesign.Infrastructure \
     --startup-project src/SystemDesign.API \
     --configuration Release \
-    --runtime linux-x64 \
     --output /app/efbundle \
     --force
 
