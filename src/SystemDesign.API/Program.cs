@@ -65,5 +65,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapGet("/health", () => Results.Ok("Healthy"));
+app.MapGet("/rollback", () => Results.Ok("test Rollback"));
 
 app.Run();
