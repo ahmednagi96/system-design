@@ -1,0 +1,45 @@
+name: Rollback
+
+on:
+  workflow_dispatch:                       # زرار يدوي
+    inputs:
+      image_tag:
+        description: "التاج اللي عايز ترجعله (مثال: sha-a1b2c3d)"
+        required: true
+
+jobs:
+  rollback:
+    name: Rollback
+    runs-on: ubuntu-latest
+    environment: production                # برضه محتاج موافقتك
+    timeout-minutes: 10
+
+    steps:
+      # 🛡️ نتأكد إن التاج شكله صح (حماية من أي حد يكتب أوامر غريبة)
+      - name: Validate tag
+        env:
+          IMAGE_TAG: ${{ inputs.image_tag }}
+        run: |
+          if [[ ! "$IMAGE_TAG" =~ ^sha-[0-9a-f]{7}$ ]]; then
+            echo "❌ التاج لازم يكون بالشكل ده: sha-a1b2c3d"
+            exit 1
+          fi
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Roll back on server
+        env:
+          IMAGE_TAG: ${{ inputs.image_tag }}
+        run: |
+          ssh "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" "
+            cd ~/app &&
+            export IMAGE_TAG=$IMAGE_TAG &&
+            docker compose pull api migrator &&
+            docker compose up -d
+          "
+          echo "⏪ رجعنا لـ $IMAGE_TAG"
