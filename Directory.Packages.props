@@ -29,7 +29,7 @@
 
     <!-- اختبارات التكامل -->
 <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(AspNetCoreVersion)" />
-<PackageVersion Include="Testcontainers.MsSql" Version="4.15.0" />
+<PackageVersion Include="Testcontainers.MsSql" Version="4.16.0" />
 <PackageVersion Include="Testcontainers.Redis" Version="4.15.0" />
     <!-- health checks -->
 <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="$(AspNetCoreVersion)" />
