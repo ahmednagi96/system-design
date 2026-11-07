@@ -1,0 +1,29 @@
+version: 2
+updates:
+  # 📦 مكتبات NuGet
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      microsoft:                       # جمّع تحديثات مايكروسوفت في PR واحد
+        patterns: ["Microsoft.*", "System.*"]
+    ignore:
+      - dependency-name: "Microsoft.*"  # متقترحش .NET 11 (إحنا على 10 LTS)
+        update-types: ["version-update:semver-major"]
+
+  # ⚙️ الـ Actions في ملفات الـ workflow
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # 🐳 صور Docker في الـ Dockerfile
+  - package-ecosystem: "docker"
+    directory: "/src/SystemDesign.API"
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]

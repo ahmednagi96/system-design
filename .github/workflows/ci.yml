@@ -89,11 +89,28 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha                       # استخدم كاش التشغيل اللي فات
           cache-to: type=gha,mode=max                # واحفظ كاش للمرة الجاية  
+  scan:
+    name: Image Scan
+    needs: docker
+    if: github.event_name == 'push'        # بنفحص الصورة اللي اترفعت على main
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read                       # 🔐 أقل صلاحيات: مش محتاج أي أسرار
+    steps:
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1  # 0.35.0
+        with:
+          image-ref: ghcr.io/ahmednagi96/system-design:latest
+          severity: CRITICAL,HIGH           # العالي والحرج بس
+          ignore-unfixed: true              # اللي ملوش حل لسه، متزعّقش عليه
+          exit-code: "1"                    # لو لقى حاجة ← ❌
+
   deploy:
     name: Deploy
     needs: docker                        # بعد ما الصورة تترفع
     if: github.event_name == 'push'      # في main بس، مش في الـ PR
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 
     environment:                                      # 👈 جديد
       name: production
       url: https://13-140-223-133.sslip.io/health    # لينك بيظهر في GitHub بعد النشر 
