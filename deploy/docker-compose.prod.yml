@@ -1,3 +1,8 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"   # كل ملف أقصاه 10 ميجا
+    max-file: "3"     # وآخر 3 ملفات بس
 services:
   migrator:
     # نفس صورة الـ API بالظبط
@@ -5,6 +10,8 @@ services:
     # بدل ما يشغّل الـ API، يشغّل حزمة الـ Migrations
     entrypoint: ["./efbundle", "--connection", "Server=sqlserver,1433;Database=${DB_NAME};User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True;"]
     restart: "no"                       # يشتغل مرة واحدة ويخلص
+    logging: *default-logging         # 👈 هنا
+    
     depends_on:
       sqlserver:
         condition: service_healthy      # يستنى SQL يبقى جاهز  
@@ -13,6 +20,7 @@ services:
     # الصورة الجاهزة من GHCR (اكتب اسمك واسم الريبو بحروف صغيرة)
     image: ghcr.io/ahmednagi96/system-design:${IMAGE_TAG:-latest}
     restart: unless-stopped
+    logging: *default-logging 
    # ports:
    #   - "80:8080"                 # مؤقتًا لحد ما نضيف Caddy في الدرس 9
     environment:
@@ -30,11 +38,13 @@ services:
   redis:
     image: redis:alpine
     restart: unless-stopped
+    logging: *default-logging 
     # 🚫 مفيش ports: مش مفتوح للإنترنت
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     restart: unless-stopped
+    logging: *default-logging 
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=${DB_PASSWORD}
@@ -51,6 +61,7 @@ services:
   caddy:
     image: caddy:2-alpine
     restart: unless-stopped
+    logging: *default-logging
     ports:
       - "80:80"         # HTTP (عشان Let's Encrypt يتأكد من الدومين + تحويل لـ HTTPS)
       - "443:443"       # HTTPS

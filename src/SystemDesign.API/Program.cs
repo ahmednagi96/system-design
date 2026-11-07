@@ -3,6 +3,7 @@ using static StackExchange.Redis.ConnectionMultiplexer;
 using SystemDesign.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using SystemDesign.API.Background;
+using system_design.Health;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +28,12 @@ builder.Services.AddMemoryCache();
 // 3. تسجيل الـ Queue والـ Background Worker بتاع الإحصائيات
 builder.Services.AddSingleton<ClickAnalyticsQueue>();
 builder.Services.AddHostedService<ClickAnalyticsWorker>();
+
+
+// register health checks
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<AppDbContext>("database")   // 👈 اسم الـ DbContext بتاعك
+    .AddCheck<RedisHealthCheck>("redis");
 
 
 var app = builder.Build();
@@ -66,5 +73,5 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapGet("/health", () => Results.Ok("Healthy"));
 app.MapGet("/rollback", () => Results.Ok("test Rollback"));
-
+app.MapHealthChecks("/health/ready");
 app.Run();
