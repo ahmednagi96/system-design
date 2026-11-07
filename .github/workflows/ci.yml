@@ -132,3 +132,17 @@ jobs:
             docker compose up -d &&
             docker image prune -f
           "        
+          # 🧪 نتأكد إن النسخة الجديدة شغالة فعلًا
+      - name: Smoke test
+        run: |
+          for i in $(seq 1 12); do
+            if curl -fsS https://13-140-223-133.sslip.io/health/ready; then
+              echo ""
+              echo "✅ الموقع سليم"
+              exit 0
+            fi
+            echo "⏳ محاولة $i فشلت، هجرّب تاني بعد 10 ثواني..."
+            sleep 10
+          done
+          echo "❌ الموقع مش سليم بعد دقيقتين! فكّر في Rollback"
+          exit 1

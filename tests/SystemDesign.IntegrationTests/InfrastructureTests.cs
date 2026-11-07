@@ -41,4 +41,14 @@ public class InfrastructureTests(ApiFactory factory)
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
+
+    [Fact]
+    public async Task Health_Ready_Returns_Ok_When_Sql_And_Redis_Are_Up()
+    {
+        var client = factory.CreateClient();
+
+        var response = await client.GetAsync("/health/ready");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
 }
