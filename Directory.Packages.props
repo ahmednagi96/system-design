@@ -16,7 +16,7 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="$(EfCoreVersion)" />
 
     <!-- مكتبات مستقلة عن إصدار .NET -->
-    <PackageVersion Include="StackExchange.Redis" Version="3.4.20" />
+    <PackageVersion Include="StackExchange.Redis" Version="3.4.31" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.6.2" />
 
     <!-- مكتبات الاختبارات: انسخ نفس الأرقام الموجودة في SystemDesign.Tests.csproj -->
