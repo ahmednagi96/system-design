@@ -48,6 +48,11 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 EXPOSE 8080
 
+# 🔐 نطبّق تحديثات الأمان الخاصة بـ Ubuntu (لحد ما مايكروسوفت تحدّث الصورة)
+RUN apt-get update \
+    && apt-get upgrade -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
 # ننسخ الناتج النهائي بس من مرحلة البناء
 COPY --from=build /app/publish .
 
