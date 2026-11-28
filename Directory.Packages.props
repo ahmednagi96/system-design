@@ -5,8 +5,8 @@
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
 
     <!-- متغير واحد لكل مكتبات EF Core: الترقية = تعديل سطر واحد -->
-    <EfCoreVersion>10.0.14</EfCoreVersion>
-    <AspNetCoreVersion>10.0.14</AspNetCoreVersion>
+    <EfCoreVersion>10.0.15</EfCoreVersion>
+    <AspNetCoreVersion>10.0.15</AspNetCoreVersion>
   </PropertyGroup>
 
   <ItemGroup>
